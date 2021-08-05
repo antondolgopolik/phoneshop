@@ -2,6 +2,9 @@ package com.es.phoneshop.web.controller.pages;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +15,7 @@ import com.es.core.model.phone.PhoneDao;
 @Controller
 @RequestMapping (value = "/productList")
 public class ProductListPageController {
+
     @Resource
     private PhoneDao phoneDao;
 
