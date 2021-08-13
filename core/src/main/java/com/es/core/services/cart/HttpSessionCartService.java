@@ -1,4 +1,4 @@
-package com.es.core.cart;
+package com.es.core.services.cart;
 
 import org.springframework.stereotype.Service;
 
@@ -6,6 +6,7 @@ import java.util.Map;
 
 @Service
 public class HttpSessionCartService implements CartService {
+
     @Override
     public Cart getCart() {
         throw new UnsupportedOperationException("TODO");
@@ -13,7 +14,8 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public void addPhone(Long phoneId, Long quantity) {
-        throw new UnsupportedOperationException("TODO");
+        System.out.println(phoneId + " add " + quantity);
+//        throw new UnsupportedOperationException("TODO");
     }
 
     @Override

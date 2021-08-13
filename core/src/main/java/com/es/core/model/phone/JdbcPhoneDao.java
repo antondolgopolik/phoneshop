@@ -15,15 +15,17 @@ public class JdbcPhoneDao implements PhoneDao {
     @Resource
     private ColorDao colorDao;
 
+    @Override
     public Optional<Phone> get(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("ID can't be null!");
         }
         String sql = "SELECT * FROM phones WHERE id=?";
-        Phone phone = jdbcTemplate.queryForObject(sql, new PhoneRowMapper(colorDao), id);
+        Phone phone = jdbcTemplate.query(sql, new SinglePhoneResultSetExtractor(colorDao), id);
         return Optional.ofNullable(phone);
     }
 
+    @Override
     public void save(Phone phone) {
         String sql = "INSERT INTO phones VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " +
                 "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -40,8 +42,26 @@ public class JdbcPhoneDao implements PhoneDao {
         );
     }
 
-    public List<Phone> findAll(int offset, int limit) {
-        String sql = "SELECT * FROM phones OFFSET " + offset + " LIMIT " + limit;
-        return jdbcTemplate.query(sql, new PhoneRowMapper(colorDao));
+    @Override
+    public List<Phone> findAllInStock(String request,
+                                      PhoneSortType phoneSortType,
+                                      SortDirection sortDirection,
+                                      int offset,
+                                      int limit) {
+        // Build query
+        PhoneQueryBuilder phoneQueryBuilder = new PhoneQueryBuilder();
+        phoneQueryBuilder.setRequest(request);
+        phoneQueryBuilder.setPhoneSortType(phoneSortType);
+        phoneQueryBuilder.setSortDirection(sortDirection);
+        phoneQueryBuilder.setOffset(offset);
+        phoneQueryBuilder.setLimit(limit);
+        // Make query
+        return jdbcTemplate.query(phoneQueryBuilder.build(), new PhoneInStockRowMapper(this));
+    }
+
+    @Override
+    public int getPhonesInStockNumber() {
+        String sql = "SELECT COUNT(*) FROM stocks";
+        return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 }
