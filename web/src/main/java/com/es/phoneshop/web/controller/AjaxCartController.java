@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping(value = "/ajaxCart")
 public class AjaxCartController {
+
     @Resource
     private CartService cartService;
 

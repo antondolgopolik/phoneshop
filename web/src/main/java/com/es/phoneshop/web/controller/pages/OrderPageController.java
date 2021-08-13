@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 @Controller
 @RequestMapping(value = "/order")
 public class OrderPageController {
+
     @Resource
     private OrderService orderService;
 

@@ -1,8 +1,10 @@
 package com.es.core.model.phone;
 
+import com.es.core.model.color.Color;
+
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Phone {
@@ -10,52 +12,37 @@ public class Phone {
     private String brand;
     private String model;
     private BigDecimal price;
-
     private BigDecimal displaySizeInches;
-
     private Integer weightGr;
-
     private BigDecimal lengthMm;
-
     private BigDecimal widthMm;
-
     private BigDecimal heightMm;
-
     private Date announced;
-
     private String deviceType;
-
     private String os;
-
-    private Set<Color> colors = Collections.EMPTY_SET;
-
+    private Set<Color> colors = new HashSet<>();
     private String displayResolution;
-
     private Integer pixelDensity;
-
     private String displayTechnology;
-
     private BigDecimal backCameraMegapixels;
-
     private BigDecimal frontCameraMegapixels;
-
     private BigDecimal ramGb;
-
     private BigDecimal internalStorageGb;
-
     private Integer batteryCapacityMah;
-
     private BigDecimal talkTimeHours;
-
     private BigDecimal standByTimeHours;
-
     private String bluetooth;
-
     private String positioning;
-
     private String imageUrl;
-
     private String description;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getBrand() {
         return brand;
@@ -63,6 +50,22 @@ public class Phone {
 
     public void setBrand(String brand) {
         this.brand = brand;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public BigDecimal getDisplaySizeInches() {
@@ -79,6 +82,30 @@ public class Phone {
 
     public void setWeightGr(Integer weightGr) {
         this.weightGr = weightGr;
+    }
+
+    public BigDecimal getLengthMm() {
+        return lengthMm;
+    }
+
+    public void setLengthMm(BigDecimal lengthMm) {
+        this.lengthMm = lengthMm;
+    }
+
+    public BigDecimal getWidthMm() {
+        return widthMm;
+    }
+
+    public void setWidthMm(BigDecimal widthMm) {
+        this.widthMm = widthMm;
+    }
+
+    public BigDecimal getHeightMm() {
+        return heightMm;
+    }
+
+    public void setHeightMm(BigDecimal heightMm) {
+        this.heightMm = heightMm;
     }
 
     public Date getAnnounced() {
@@ -161,22 +188,6 @@ public class Phone {
         this.ramGb = ramGb;
     }
 
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(final String model) {
-        this.model = model;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(final BigDecimal price) {
-        this.price = price;
-    }
-
     public BigDecimal getInternalStorageGb() {
         return internalStorageGb;
     }
@@ -239,37 +250,5 @@ public class Phone {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public BigDecimal getLengthMm() {
-        return lengthMm;
-    }
-
-    public void setLengthMm(BigDecimal lengthMm) {
-        this.lengthMm = lengthMm;
-    }
-
-    public BigDecimal getWidthMm() {
-        return widthMm;
-    }
-
-    public void setWidthMm(BigDecimal widthMm) {
-        this.widthMm = widthMm;
-    }
-
-    public BigDecimal getHeightMm() {
-        return heightMm;
-    }
-
-    public void setHeightMm(BigDecimal heightMm) {
-        this.heightMm = heightMm;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 }
