@@ -1,0 +1,39 @@
+package com.es.core.dao.color;
+
+import com.es.core.model.phone.Color;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@Repository
+public class JdbcColorDao implements ColorDao {
+    @Resource
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public Optional<Color> get(Long id) {
+        String sql = "SELECT * FROM colors WHERE id=?";
+        Color color = jdbcTemplate.query(sql, new SingleColorResultSetExtractor(), id);
+        return Optional.ofNullable(color);
+    }
+
+    @Override
+    public Set<Color> getByPhoneId(Long phoneId) {
+        Set<Color> colors = new HashSet<>();
+        for (Long colorId : getColorIdsByPhoneId(phoneId)) {
+            get(colorId).ifPresent(colors::add);
+        }
+        return colors;
+    }
+
+    private List<Long> getColorIdsByPhoneId(Long phoneId) {
+        String sql = "SELECT * FROM phone2color WHERE phoneId=?";
+        return jdbcTemplate.query(sql, (resultSet, i) -> resultSet.getLong(2), phoneId);
+    }
+}
