@@ -2,8 +2,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <%--@elvariable id="phones" type="java.util.List"--%>
+<%--@elvariable id="cart" type="com.es.core.model.cart.Cart"--%>
 <%--@elvariable id="currentPage" type="java.lang.Integer"--%>
 <%--@elvariable id="phonesInStockNumber" type="java.lang.Integer"--%>
 
@@ -14,7 +16,6 @@
     final int maxPage = (int) Math.ceil((double) phonesInStockNumber / phonesPerPage);
 %>
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,27 +26,7 @@
     <script type="text/javascript" src="<c:url value="/resources/js/productList.js"/>"></script>
 </head>
 <body>
-<div class="container-fluid">
-    <div class="row justify-content-between">
-        <div class="col-auto d-flex align-items-center">
-            <h1 class="display-3">
-                Phoneshop
-            </h1>
-        </div>
-        <div class="col-auto">
-            <div>
-                <a href="#">
-                    Login
-                </a>
-            </div>
-            <div>
-                <button class="btn btn-primary">
-                    My cart: 0 items 0$
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<tags:topBar cart="${cart}"/>
 
 <div class="container-fluid py-4">
     <div class="row justify-content-end">
@@ -85,8 +66,10 @@
     <c:forEach var="phone" items="${phones}">
         <tr>
             <td>
-                <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}"
-                     alt="phone image">
+                <a href="/phoneshop-web/productDetails/${phone.id}">
+                    <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}"
+                         alt="phone image">
+                </a>
             </td>
             <td>${phone.brand}</td>
             <td>${phone.model}</td>
@@ -122,7 +105,7 @@
     <nav>
         <ul class="pagination justify-content-center">
             <li class="page-item <%if (currentPage == 1) out.print("disabled");%>">
-                <a class="page-link" href="?page=<%out.print(currentPage-1);%>">Previous</a>
+                <a class="page-link" href="?page=<%out.print(currentPage - 1);%>">Previous</a>
             </li>
             <%
                 int limit = Math.min(currentPage + phonesPerPage - 1, maxPage);
@@ -133,7 +116,7 @@
                 }
             %>
             <li class="page-item <%if (currentPage == maxPage) out.print("disabled");%>">
-                <a class="page-link" href="?page=<%out.print(currentPage+1);%>">Next</a>
+                <a class="page-link" href="?page=<%out.print(currentPage + 1);%>">Next</a>
             </li>
         </ul>
     </nav>

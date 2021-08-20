@@ -1,4 +1,4 @@
-package com.es.core.model.phone;
+package com.es.core.dao.phone;
 
 public enum SortDirection {
     ASC, DESC

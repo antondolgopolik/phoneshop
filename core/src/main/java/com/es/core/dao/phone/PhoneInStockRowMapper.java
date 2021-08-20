@@ -1,5 +1,6 @@
-package com.es.core.model.phone;
+package com.es.core.dao.phone;
 
+import com.es.core.model.phone.Phone;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

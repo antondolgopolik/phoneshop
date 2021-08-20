@@ -1,6 +1,7 @@
-package com.es.core.model.stock;
+package com.es.core.dao.stock;
 
 import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.Stock;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 

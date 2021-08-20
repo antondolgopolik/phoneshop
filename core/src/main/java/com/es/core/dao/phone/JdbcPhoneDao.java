@@ -1,6 +1,7 @@
-package com.es.core.model.phone;
+package com.es.core.dao.phone;
 
-import com.es.core.model.color.ColorDao;
+import com.es.core.dao.color.ColorDao;
+import com.es.core.model.phone.Phone;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,6 @@
-package com.es.core.model.stock;
+package com.es.core.model.phone;
 
-import com.es.core.model.phone.Phone;
-
-public class Stock {
+public class Stock implements Cloneable {
     private Phone phone;
     private Integer stock;
     private Integer reserved;
@@ -29,5 +27,14 @@ public class Stock {
 
     public void setReserved(Integer reserved) {
         this.reserved = reserved;
+    }
+
+    @Override
+    public Stock clone() {
+        try {
+            return (Stock) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

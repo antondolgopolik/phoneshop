@@ -1,4 +1,4 @@
-package com.es.core.model.phone;
+package com.es.core.dao.phone;
 
 public class PhoneQueryBuilder {
     private String request;
@@ -40,12 +40,11 @@ public class PhoneQueryBuilder {
     private void appendRequest(StringBuilder builder, String request) {
         if (request != null) {
             String[] tokens = request.split("\\s");
-            builder.append(" AND REGEXP_LIKE(model, '");
+            builder.append(" AND model ~* '");
             for (String token : tokens) {
                 builder.append(token).append('|');
             }
             builder.setCharAt(builder.length() - 1, '\'');
-            builder.append(')');
         }
     }
 

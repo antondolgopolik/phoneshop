@@ -1,7 +1,8 @@
-package com.es.core.model.stock;
+package com.es.core.dao.stock;
 
 import com.es.core.model.phone.Phone;
-import com.es.core.model.phone.PhoneDao;
+import com.es.core.dao.phone.PhoneDao;
+import com.es.core.model.phone.Stock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -30,5 +31,11 @@ public class JdbcStockDao implements StockDao {
         String sql = "SELECT * FROM stocks WHERE phoneId=?";
         Stock stock = jdbcTemplate.query(sql, new SingleStockResultSetExtractor(phone), phone.getId());
         return Optional.ofNullable(stock);
+    }
+
+    @Override
+    public void update(Stock stock) {
+        String sql = "UPDATE stocks SET stock=?, reserved=? WHERE phoneId=?";
+        jdbcTemplate.update(sql, stock.getStock(), stock.getReserved(), stock.getPhone().getId());
     }
 }
