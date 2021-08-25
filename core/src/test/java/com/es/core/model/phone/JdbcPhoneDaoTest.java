@@ -53,5 +53,4 @@ public class JdbcPhoneDaoTest {
         Phone phone = phoneDao.get(1000L).get();
         Assert.assertEquals(phone.getId(), Long.valueOf(1000));
     }
-
 }

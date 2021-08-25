@@ -20,7 +20,7 @@ public class JdbcColorDao implements ColorDao {
             throw new IllegalArgumentException("ID can't be null!");
         }
         String sql = "SELECT * FROM colors WHERE id=?";
-        Color color = jdbcTemplate.queryForObject(sql, new ColorRowMapper(), id);
+        Color color = jdbcTemplate.query(sql, new SingleColorResultSetExtractor(), id);
         return Optional.ofNullable(color);
     }
 

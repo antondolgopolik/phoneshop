@@ -1,20 +1,18 @@
 package com.es.core.model.phone;
 
 import com.es.core.model.color.ColorDao;
-import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PhoneRowMapper implements RowMapper<Phone> {
+public class PhoneExtractor {
     private final ColorDao colorDao;
 
-    public PhoneRowMapper(ColorDao colorDao) {
+    public PhoneExtractor(ColorDao colorDao) {
         this.colorDao = colorDao;
     }
 
-    @Override
-    public Phone mapRow(ResultSet resultSet, int i) throws SQLException {
+    public Phone extract(ResultSet resultSet) throws SQLException {
         Phone phone = new Phone();
         phone.setId(resultSet.getLong(1));
         phone.setBrand(resultSet.getString(2));
