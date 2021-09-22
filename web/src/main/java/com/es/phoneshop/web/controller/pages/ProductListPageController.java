@@ -1,51 +1,56 @@
 package com.es.phoneshop.web.controller.pages;
 
-import javax.annotation.Resource;
-
-import com.es.core.model.phone.PhoneSortType;
-import com.es.core.model.phone.SortDirection;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
+import com.es.core.services.cart.CartService;
+import com.es.core.services.product.ProductService;
+import com.es.core.services.product.SortDirection;
+import com.es.core.services.product.SortType;
+import com.es.core.services.user.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.es.core.model.phone.PhoneDao;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
 
 @Controller
 @RequestMapping(value = "/productList")
 public class ProductListPageController {
-    private static final String PHONES_ATTR = "phones";
+    private static final String CART_ATTR = "cart";
+    private static final String AUTHENTICATED_ATR = "authenticated";
+    private static final String PRODUCTS_ATTR = "products";
     private static final String CURRENT_PAGE_ATTR = "currentPage";
-    private static final String PHONES_IN_STOCK_NUMBER_ATTR = "phonesInStockNumber";
-    private static final String PHONES_PER_PAGE_ATTR = "phonesPerPage";
+    private static final String PRODUCTS_NUMBER_ATTR = "productsNumber";
+    private static final String PRODUCTS_PER_PAGE_ATTR = "productsPerPage";
 
     @Resource
-    private PhoneDao phoneDao;
+    private CartService cartService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private ProductService productService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public String showProductList(Model model,
-                                  @RequestParam(defaultValue = "1") Integer page,
-                                  @RequestParam(required = false) String request,
-                                  @RequestParam(required = false) String sortType,
-                                  @RequestParam(required = false) String sortDir) {
-        PhoneSortType phoneSortType = sortType != null
-                ? PhoneSortType.valueOf(sortType.toUpperCase())
+    public String showProductListPage(Model model,
+                                      @RequestParam(defaultValue = "1") Integer page,
+                                      @RequestParam(required = false) String searchQuery,
+                                      @RequestParam(required = false) String sort,
+                                      @RequestParam(required = false) String sortDir) {
+        SortType sortType = sort != null
+                ? SortType.valueOf(sort.toUpperCase())
                 : null;
         SortDirection sortDirection = sortDir != null
                 ? SortDirection.valueOf(sortDir.toUpperCase())
                 : null;
-
-        model.addAttribute(PHONES_ATTR, phoneDao.findAllInStock(
-                request, phoneSortType, sortDirection, (page - 1) * 10, 10)
+        // Set attributes
+        model.addAttribute(CART_ATTR, cartService.getCart());
+        model.addAttribute(AUTHENTICATED_ATR, userService.isAuthenticated());
+        model.addAttribute(PRODUCTS_ATTR, productService.searchProducts(
+                searchQuery, sortType, sortDirection, (page - 1) * 10, 10)
         );
         model.addAttribute(CURRENT_PAGE_ATTR, page);
-        model.addAttribute(PHONES_IN_STOCK_NUMBER_ATTR, phoneDao.getPhonesInStockNumber());
-        model.addAttribute(PHONES_PER_PAGE_ATTR, 10);
-        return "productList";
+        model.addAttribute(PRODUCTS_NUMBER_ATTR, productService.getProductsInStockNumber());
+        model.addAttribute(PRODUCTS_PER_PAGE_ATTR, 10);
+        return "productListPage";
     }
 }

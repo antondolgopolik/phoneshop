@@ -1,7 +1,5 @@
 package com.es.core.model.phone;
 
-import com.es.core.model.color.Color;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,25 +10,25 @@ public class Phone {
     private String brand;
     private String model;
     private BigDecimal price;
-    private BigDecimal displaySizeInches;
-    private Integer weightGr;
-    private BigDecimal lengthMm;
-    private BigDecimal widthMm;
-    private BigDecimal heightMm;
+    private BigDecimal displaySize;
+    private Integer weight;
+    private BigDecimal length;
+    private BigDecimal width;
+    private BigDecimal height;
     private Date announced;
     private String deviceType;
     private String os;
-    private Set<Color> colors = new HashSet<>();
+    private Set<Color> colors;
     private String displayResolution;
     private Integer pixelDensity;
     private String displayTechnology;
     private BigDecimal backCameraMegapixels;
     private BigDecimal frontCameraMegapixels;
-    private BigDecimal ramGb;
-    private BigDecimal internalStorageGb;
-    private Integer batteryCapacityMah;
-    private BigDecimal talkTimeHours;
-    private BigDecimal standByTimeHours;
+    private BigDecimal ram;
+    private BigDecimal internalStorage;
+    private Integer batteryCapacity;
+    private BigDecimal talkTime;
+    private BigDecimal standByTime;
     private String bluetooth;
     private String positioning;
     private String imageUrl;
@@ -68,44 +66,44 @@ public class Phone {
         this.price = price;
     }
 
-    public BigDecimal getDisplaySizeInches() {
-        return displaySizeInches;
+    public BigDecimal getDisplaySize() {
+        return displaySize;
     }
 
-    public void setDisplaySizeInches(BigDecimal displaySizeInches) {
-        this.displaySizeInches = displaySizeInches;
+    public void setDisplaySize(BigDecimal displaySize) {
+        this.displaySize = displaySize;
     }
 
-    public Integer getWeightGr() {
-        return weightGr;
+    public Integer getWeight() {
+        return weight;
     }
 
-    public void setWeightGr(Integer weightGr) {
-        this.weightGr = weightGr;
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 
-    public BigDecimal getLengthMm() {
-        return lengthMm;
+    public BigDecimal getLength() {
+        return length;
     }
 
-    public void setLengthMm(BigDecimal lengthMm) {
-        this.lengthMm = lengthMm;
+    public void setLength(BigDecimal length) {
+        this.length = length;
     }
 
-    public BigDecimal getWidthMm() {
-        return widthMm;
+    public BigDecimal getWidth() {
+        return width;
     }
 
-    public void setWidthMm(BigDecimal widthMm) {
-        this.widthMm = widthMm;
+    public void setWidth(BigDecimal width) {
+        this.width = width;
     }
 
-    public BigDecimal getHeightMm() {
-        return heightMm;
+    public BigDecimal getHeight() {
+        return height;
     }
 
-    public void setHeightMm(BigDecimal heightMm) {
-        this.heightMm = heightMm;
+    public void setHeight(BigDecimal height) {
+        this.height = height;
     }
 
     public Date getAnnounced() {
@@ -180,44 +178,44 @@ public class Phone {
         this.frontCameraMegapixels = frontCameraMegapixels;
     }
 
-    public BigDecimal getRamGb() {
-        return ramGb;
+    public BigDecimal getRam() {
+        return ram;
     }
 
-    public void setRamGb(BigDecimal ramGb) {
-        this.ramGb = ramGb;
+    public void setRam(BigDecimal ram) {
+        this.ram = ram;
     }
 
-    public BigDecimal getInternalStorageGb() {
-        return internalStorageGb;
+    public BigDecimal getInternalStorage() {
+        return internalStorage;
     }
 
-    public void setInternalStorageGb(BigDecimal internalStorageGb) {
-        this.internalStorageGb = internalStorageGb;
+    public void setInternalStorage(BigDecimal internalStorage) {
+        this.internalStorage = internalStorage;
     }
 
-    public Integer getBatteryCapacityMah() {
-        return batteryCapacityMah;
+    public Integer getBatteryCapacity() {
+        return batteryCapacity;
     }
 
-    public void setBatteryCapacityMah(Integer batteryCapacityMah) {
-        this.batteryCapacityMah = batteryCapacityMah;
+    public void setBatteryCapacity(Integer batteryCapacity) {
+        this.batteryCapacity = batteryCapacity;
     }
 
-    public BigDecimal getTalkTimeHours() {
-        return talkTimeHours;
+    public BigDecimal getTalkTime() {
+        return talkTime;
     }
 
-    public void setTalkTimeHours(BigDecimal talkTimeHours) {
-        this.talkTimeHours = talkTimeHours;
+    public void setTalkTime(BigDecimal talkTime) {
+        this.talkTime = talkTime;
     }
 
-    public BigDecimal getStandByTimeHours() {
-        return standByTimeHours;
+    public BigDecimal getStandByTime() {
+        return standByTime;
     }
 
-    public void setStandByTimeHours(BigDecimal standByTimeHours) {
-        this.standByTimeHours = standByTimeHours;
+    public void setStandByTime(BigDecimal standByTime) {
+        this.standByTime = standByTime;
     }
 
     public String getBluetooth() {
