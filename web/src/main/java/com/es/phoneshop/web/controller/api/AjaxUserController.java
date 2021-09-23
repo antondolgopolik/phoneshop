@@ -1,13 +1,16 @@
 package com.es.phoneshop.web.controller.api;
 
+import com.es.core.dto.user.SignUpFormDto;
+import com.es.core.exceptions.ValidationException;
 import com.es.core.services.user.UserService;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -17,16 +20,24 @@ public class AjaxUserController {
     @Resource
     private UserService userService;
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    private ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    @Resource
+    private MessageSource messageSource;
+    @Resource
+    private Validator signUpFormDtoValidator;
+
+    @InitBinder
+    private void initBinderQuantityDto(WebDataBinder webDataBinder) {
+        webDataBinder.setValidator(signUpFormDtoValidator);
     }
 
     @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    public ResponseEntity<String> signUp(@RequestParam String username,
-                                         @RequestParam String password) {
+    public ResponseEntity<String> signUp(@Validated @RequestBody SignUpFormDto signUpFormDto,
+                                         BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException(messageSource, bindingResult);
+        }
         // Try to sign up
-        userService.signUp(username, password);
+        userService.signUp(signUpFormDto.getUsername(), signUpFormDto.getPassword());
         // Send response
         return ResponseEntity.noContent().build();
     }

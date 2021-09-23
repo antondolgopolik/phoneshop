@@ -1,7 +1,7 @@
 package com.es.core.dao.phone;
 
-import com.es.core.services.product.SortType;
 import com.es.core.services.product.SortDirection;
+import com.es.core.services.product.SortType;
 
 public class SearchQueryBuilder {
     private String searchQuery;

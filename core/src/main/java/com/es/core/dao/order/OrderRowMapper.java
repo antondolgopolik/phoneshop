@@ -1,7 +1,6 @@
 package com.es.core.dao.order;
 
 import com.es.core.model.order.Order;
-import com.es.core.model.order.OrderStatus;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

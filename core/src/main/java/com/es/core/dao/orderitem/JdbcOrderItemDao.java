@@ -1,7 +1,6 @@
 package com.es.core.dao.orderitem;
 
 import com.es.core.model.order.OrderItem;
-import com.es.core.model.phone.Stock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 

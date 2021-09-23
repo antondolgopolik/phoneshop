@@ -3,7 +3,6 @@ package com.es.phoneshop.web.controller.pages;
 import com.es.core.dto.order.OrderItemDto;
 import com.es.core.model.cart.Cart;
 import com.es.core.model.order.Order;
-import com.es.core.model.order.OrderItem;
 import com.es.core.services.cart.CartService;
 import com.es.core.services.order.OrderService;
 import com.es.core.services.user.UserService;

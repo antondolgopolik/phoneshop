@@ -3,13 +3,16 @@ package com.es.core.exceptions;
 import java.util.Map;
 
 public class MultiErrorException extends RuntimeException {
-    private final Map<?, String> errors;
+    protected Map<?, ?> data;
 
-    public MultiErrorException(Map<?, String> errors) {
-        this.errors = errors;
+    protected MultiErrorException() {
     }
 
-    public Map<?, String> getErrors() {
-        return errors;
+    public MultiErrorException(Map<?, ?> data) {
+        this.data = data;
+    }
+
+    public Map<?, ?> getData() {
+        return data;
     }
 }

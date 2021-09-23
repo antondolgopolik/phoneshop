@@ -13,6 +13,12 @@
 
     <context:property-placeholder location="/WEB-INF/conf/application.properties"/>
 
+    <mvc:annotation-driven/>
+
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basename" value="/WEB-INF/messages/messages"/>
+    </bean>
+
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/pages/"/>
         <property name="suffix" value=".jsp"/>
@@ -20,10 +26,9 @@
 
     <mvc:resources mapping="/resources/**" location="/resources/"/>
 
-    <mvc:annotation-driven/>
-
     <import resource="classpath:config/database-config.xml"/>
-    <context:component-scan base-package="com.es.phoneshop.web"/>
+    <context:component-scan base-package="com.es.phoneshop.web.config"/>
     <import resource="classpath:config/core-config.xml"/>
     <import resource="classpath:config/demodata-config.xml"/>
+    <context:component-scan base-package="com.es.phoneshop.web"/>
 </beans>

@@ -22,6 +22,7 @@ public class ProductListPageController {
     private static final String CURRENT_PAGE_ATTR = "currentPage";
     private static final String PRODUCTS_NUMBER_ATTR = "productsNumber";
     private static final String PRODUCTS_PER_PAGE_ATTR = "productsPerPage";
+    private static final int PRODUCTS_PER_PAGE = 10;
 
     @Resource
     private CartService cartService;
@@ -46,7 +47,7 @@ public class ProductListPageController {
         model.addAttribute(CART_ATTR, cartService.getCart());
         model.addAttribute(AUTHENTICATED_ATR, userService.isAuthenticated());
         model.addAttribute(PRODUCTS_ATTR, productService.searchProducts(
-                searchQuery, sortType, sortDirection, (page - 1) * 10, 10)
+                searchQuery, sortType, sortDirection, (page - 1) * PRODUCTS_PER_PAGE, PRODUCTS_PER_PAGE)
         );
         model.addAttribute(CURRENT_PAGE_ATTR, page);
         model.addAttribute(PRODUCTS_NUMBER_ATTR, productService.getProductsInStockNumber());

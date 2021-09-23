@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
 
 public class PhoneInStockRowMapper implements RowMapper<Phone> {
     private final PhoneExtractor phoneExtractor = new PhoneExtractor();

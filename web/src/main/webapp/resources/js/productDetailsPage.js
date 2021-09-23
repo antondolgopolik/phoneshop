@@ -10,5 +10,7 @@ function addToCartSuccess(data) {
 }
 
 function addToCartError(jqHXR, status) {
-    alert(jqHXR.responseText);
+    const errorsObj = JSON.parse(jqHXR.responseText);
+    const errors = new Map(Object.entries(errorsObj));
+    alert(errors.get("quantity"));
 }

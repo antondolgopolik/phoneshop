@@ -12,9 +12,16 @@ function signUpClickHandler() {
 }
 
 function signUpSuccess(data) {
-    window.location.replace(window.location.origin + "/phoneshop-web");
+    window.location.replace(window.location.origin + "/phoneshop-web/login");
 }
 
 function signUpError(jqHXR, status) {
-    alert(jqHXR.responseText);
+    const errorsObj = JSON.parse(jqHXR.responseText);
+    const errors = new Map(Object.entries(errorsObj));
+    if (errors.has("username")) {
+        alert(errors.get("username"));
+    }
+    if (errors.has("password")) {
+        alert(errors.get("password"));
+    }
 }

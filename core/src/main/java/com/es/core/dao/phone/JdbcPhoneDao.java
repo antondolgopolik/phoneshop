@@ -1,8 +1,6 @@
 package com.es.core.dao.phone;
 
 import com.es.core.model.phone.Phone;
-import com.es.core.services.product.SortType;
-import com.es.core.services.product.SortDirection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
