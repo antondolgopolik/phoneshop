@@ -1,19 +1,24 @@
 package com.es.core.services.cart;
 
+import com.es.core.dto.cart.CartItemDto;
+import com.es.core.model.cart.Cart;
+
+import java.util.Collection;
 import java.util.Map;
 
-public interface CartService {
+public interface CartService{
 
     Cart getCart();
 
-    void addPhone(Long phoneId, Long quantity);
+    CartItemDto getCartItem(Long phoneId);
 
-    /**
-     * @param items
-     * key: {@link com.es.core.model.phone.Phone#id}
-     * value: quantity
-     */
-    void update(Map<Long, Long> items);
+    Collection<CartItemDto> getCartItems();
 
-    void remove(Long phoneId);
+    void add(Long phoneId, Integer quantity);
+
+    void update(Long phoneId, Integer quantity);
+
+    void update(Map<Long, Integer> updates);
+
+    void delete(Long phoneId);
 }

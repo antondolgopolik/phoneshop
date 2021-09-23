@@ -1,30 +1,251 @@
 package com.es.core.services.cart;
 
+import com.es.core.dao.phone.PhoneDao;
+import com.es.core.dao.stock.StockDao;
+import com.es.core.dto.cart.CartItemDto;
+import com.es.core.exceptions.MultiErrorException;
+import com.es.core.model.cart.Cart;
+import com.es.core.model.cart.CartItem;
+import com.es.core.model.phone.Phone;
+import com.es.core.model.phone.Stock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.context.annotation.SessionScope;
 
-import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@SessionScope
 public class HttpSessionCartService implements CartService {
+    private static final String CART_ATTR = HttpSessionCartService.class.getName() + ".cart";
+    private static final String CART_ITEMS_MAP_ATTR = HttpSessionCartService.class.getName() + ".cartItemsMap";
+
+    private final HttpSessionCartServiceContext mainContext;
+
+    @Resource
+    private TransactionTemplate transactionTemplate;
+    @Resource
+    private PhoneDao phoneDao;
+    @Resource
+    private StockDao stockDao;
+
+    public HttpSessionCartService(HttpSession httpSession) {
+        var cart = (Cart) httpSession.getAttribute(CART_ATTR);
+        if (cart == null) {
+            cart = new Cart();
+            httpSession.setAttribute(CART_ATTR, cart);
+        }
+        //noinspection unchecked
+        var cartItemsMap = (HashMap<Long, CartItem>) httpSession.getAttribute(CART_ITEMS_MAP_ATTR);
+        if (cartItemsMap == null) {
+            cartItemsMap = new HashMap<>();
+            httpSession.setAttribute(CART_ITEMS_MAP_ATTR, cartItemsMap);
+        }
+        // Create main context
+        mainContext = new HttpSessionCartServiceContext(cart, cartItemsMap);
+    }
 
     @Override
     public Cart getCart() {
-        throw new UnsupportedOperationException("TODO");
+        return mainContext.getCart();
     }
 
     @Override
-    public void addPhone(Long phoneId, Long quantity) {
-        System.out.println(phoneId + " add " + quantity);
-//        throw new UnsupportedOperationException("TODO");
+    public CartItemDto getCartItem(Long phoneId) {
+        CartItemDto cartItemDto = new CartItemDto();
+        cartItemDto.setPhone(phoneDao.get(phoneId).orElseThrow());
+        cartItemDto.setQuantity(mainContext.getCartItemsMap().get(phoneId).getQuantity());
+        return cartItemDto;
     }
 
     @Override
-    public void update(Map<Long, Long> items) {
-        throw new UnsupportedOperationException("TODO");
+    public Collection<CartItemDto> getCartItems() {
+        return mainContext.getCartItemsMap().values().stream().map(cartItem -> {
+            CartItemDto cartItemDto = new CartItemDto();
+            cartItemDto.setPhone(phoneDao.get(cartItem.getPhoneId()).orElseThrow());
+            cartItemDto.setQuantity(cartItem.getQuantity());
+            return cartItemDto;
+        }).collect(Collectors.toList());
     }
 
     @Override
-    public void remove(Long phoneId) {
-        throw new UnsupportedOperationException("TODO");
+    public void add(Long phoneId, Integer delta) {
+        add(mainContext, phoneId, delta, true);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void add(HttpSessionCartServiceContext context, Long phoneId, Integer delta, boolean update) {
+        Phone phone = readPhone(phoneId);
+        CartItem cartItem = context.getCartItemsMap().get(phoneId);
+        // Prepare updates
+        Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
+        CartItem newUpdatedCartItem = newUpdatedCartItem(
+                cartItem != null ? cartItem : new CartItem(phoneId, 0),
+                delta, update
+        );
+        Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+        // Update
+        if (update) {
+            stockDao.update(newUpdatedStock);
+            context.putCartItem(newUpdatedCartItem);
+            context.updateCart(newUpdatedCart);
+        }
+    }
+
+    @Override
+    public void update(Long phoneId, Integer quantity) {
+        update(mainContext, phoneId, quantity, true);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void update(HttpSessionCartServiceContext context, Long phoneId, Integer quantity, boolean update) {
+        CartItem cartItem = context.getCartItemsMap().get(phoneId);
+        // Check if cart item with given phone id exists
+        if (cartItem != null) {
+            Phone phone = readPhone(phoneId);
+            int delta = quantity - cartItem.getQuantity();
+            // Prepare updates
+            Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
+            CartItem newUpdatedCartItem = newUpdatedCartItem(cartItem, delta, update);
+            Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+            // Update
+            if (update) {
+                stockDao.update(newUpdatedStock);
+                context.putCartItem(newUpdatedCartItem);
+                context.updateCart(newUpdatedCart);
+            }
+        } else {
+            throw new IllegalArgumentException("Cart item with given phone id doesn't exist!");
+        }
+    }
+
+    @Override
+    public void update(Map<Long, Integer> updates) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                // Temporary context
+                var context = mainContext.clone();
+                // Try updates
+                Map<Long, String> errors = new HashMap<>();
+                for (Map.Entry<Long, Integer> entry : updates.entrySet()) {
+                    Long phoneId = entry.getKey();
+                    Integer quantity = entry.getValue();
+                    try {
+                        update(context, phoneId, quantity, errors.isEmpty());
+                    } catch (RuntimeException e) {
+                        errors.put(phoneId, e.getMessage());
+                    }
+                }
+                // Update if no errors occurred
+                if (errors.isEmpty()) {
+                    mainContext.updateContext(context);
+                } else {
+                    throw new MultiErrorException(errors);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void delete(Long phoneId) {
+        delete(mainContext, phoneId, true);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private void delete(HttpSessionCartServiceContext context, Long phoneId, boolean update) {
+        CartItem cartItem = context.getCartItemsMap().get(phoneId);
+        // Check if cart item with given phone id exists
+        if (cartItem != null) {
+            Phone phone = readPhone(phoneId);
+            int delta = -cartItem.getQuantity();
+            // Prepare updates
+            Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
+            Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+            // Update
+            if (update) {
+                stockDao.update(newUpdatedStock);
+                context.removeCartItem(cartItem);
+                context.updateCart(newUpdatedCart);
+            }
+        } else {
+            throw new IllegalArgumentException("Cart item with given phone id doesn't exist!");
+        }
+    }
+
+    private Phone readPhone(Long phoneId) {
+        Optional<Phone> phoneOptional = phoneDao.get(phoneId);
+        if (phoneOptional.isEmpty()) {
+            throw new IllegalArgumentException("Phone with given id doesn't exist!");
+        }
+        return phoneOptional.get();
+    }
+
+    private Stock readStock(Phone phone) {
+        Optional<Stock> stockOptional = stockDao.getByPhone(phone);
+        if (stockOptional.isEmpty()) {
+            throw new IllegalArgumentException("Information on the stock of phones isn't available!");
+        }
+        return stockOptional.get();
+    }
+
+    private Stock newUpdatedStock(Stock stock, Integer delta, boolean returnUpdate) {
+        // Check
+        int newReserved = stock.getReserved() + delta;
+        if ((newReserved < 0) || (newReserved > stock.getStock())) {
+            throw new IllegalArgumentException("Invalid stock change!");
+        }
+        // Update
+        if (returnUpdate) {
+            Stock newStock = stock.clone();
+            newStock.setReserved(newReserved);
+            return newStock;
+        } else {
+            return null;
+        }
+    }
+
+    private CartItem newUpdatedCartItem(CartItem cartItem, Integer delta, boolean returnUpdate) {
+        // Check
+        int newQuantity = cartItem.getQuantity() + delta;
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Invalid cart item quantity change!");
+        }
+        // Update
+        if (returnUpdate) {
+            CartItem newCartItem = cartItem.clone();
+            newCartItem.setQuantity(newQuantity);
+            return newCartItem;
+        } else {
+            return null;
+        }
+    }
+
+    private Cart newUpdatedCart(Cart cart, Phone phone, Integer delta, boolean returnUpdate) {
+        // Check
+        int newTotalQuantity = cart.getTotalQuantity() + delta;
+        if (newTotalQuantity < 0) {
+            throw new IllegalArgumentException("Invalid cart total quantity change!");
+        }
+        BigDecimal newTotalCost = cart.getTotalCost().add(phone.getPrice().multiply(BigDecimal.valueOf(delta)));
+        if (newTotalCost.signum() == -1) {
+            throw new IllegalArgumentException("Invalid cart total cost change!");
+        }
+        // Update
+        if (returnUpdate) {
+            Cart newCart = cart.clone();
+            newCart.setTotalQuantity(newTotalQuantity);
+            newCart.setTotalCost(newTotalCost);
+            return newCart;
+        } else {
+            return null;
+        }
     }
 }
