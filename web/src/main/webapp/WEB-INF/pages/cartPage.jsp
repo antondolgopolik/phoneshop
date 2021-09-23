@@ -3,6 +3,7 @@
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
 <%--@elvariable id="cart" type="com.es.core.model.cart.Cart"--%>
+<%--@elvariable id="authenticated" type="java.lang.Boolean"--%>
 <%--@elvariable id="cartItems" type="java.util.Collection"--%>
 
 <html lang="en">
@@ -12,11 +13,12 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"></script>
+    <script type="text/javascript" src="<c:url value="/resources/js/api/cartApi.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/navBar.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/resources/js/cartPage.js"/>"></script>
 </head>
 <body>
-<tags:navBar cart="${cart}"/>
+<tags:navBar cart="${cart}" authenticated="${authenticated}"/>
 
 <table id="cart-table" class="table table-bordered">
     <thead>
@@ -35,20 +37,13 @@
             <td>${cartItem.phone.brand}</td>
             <td>${cartItem.phone.model}</td>
             <td>
-                <c:forEach var="color" items="${cartItem.phone.colors}" varStatus="colorStatus">
-                    ${color}<c:if test="${not colorStatus.last}">, </c:if>
-                </c:forEach>
+                <tags:colors colors="${cartItem.phone.colors}"/>
             </td>
             <td>
-                    ${cartItem.phone.displaySizeInches}``
+                    ${cartItem.phone.displaySize}``
             </td>
             <td>
-                <c:if test="${empty cartItem.phone.price}">
-                    Unknown
-                </c:if>
-                <c:if test="${not empty cartItem.phone.price}">
-                    ${cartItem.phone.price}$
-                </c:if>
+                <tags:price price="${cartItem.phone.price}"/>
             </td>
             <td>
                 <label>
@@ -71,9 +66,9 @@
         <button id="update-button" class="btn btn-primary mx-2" onclick="updateCartClickHandler()">
             Update
         </button>
-        <button id="order-button" class="btn btn-primary mx-2" onclick="orderCartClickHandler()">
+        <a class="btn btn-primary mx-2" href="${pageContext.servletContext.contextPath}/order">
             Order
-        </button>
+        </a>
     </div>
 </div>
 

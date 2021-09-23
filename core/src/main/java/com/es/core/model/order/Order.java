@@ -1,42 +1,53 @@
 package com.es.core.model.order;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Date;
 
 public class Order {
-    private Long id;
-    private List<OrderItem> orderItems;
-    /**
-     * A sum of order item prices;
-     */
+    private String id;
+    private String username;
+    private Date date;
+    private Integer totalQuantity;
     private BigDecimal subtotal;
     private BigDecimal deliveryPrice;
-    /**
-     * <code>subtotal</code> + <code>deliveryPrice</code>
-     */
     private BigDecimal totalPrice;
-
     private String firstName;
     private String lastName;
-    private String deliveryAddress;
-    private String contactPhoneNo;
-
+    private String address;
+    private String phoneNumber;
+    private String additionalInfo;
     private OrderStatus status;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
+    public String getUsername() {
+        return username;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
     public BigDecimal getSubtotal() {
@@ -79,20 +90,28 @@ public class Order {
         this.lastName = lastName;
     }
 
-    public String getDeliveryAddress() {
-        return deliveryAddress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public String getContactPhoneNo() {
-        return contactPhoneNo;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setContactPhoneNo(String contactPhoneNo) {
-        this.contactPhoneNo = contactPhoneNo;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     public OrderStatus getStatus() {

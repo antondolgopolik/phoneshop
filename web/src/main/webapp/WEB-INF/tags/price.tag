@@ -1,11 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ attribute name="phone" type="com.es.core.model.phone.Phone" required="true" %>
+<%@ attribute name="price" type="java.math.BigDecimal" required="true" %>
 
-<%--@elvariable id="phone" type="com.es.core.model.phone.Phone"--%>
+<%--@elvariable id="price" type="java.math.BigDecimal"--%>
 
-<c:if test="${empty phone.price}">
+<c:if test="${empty price}">
     Unknown
 </c:if>
-<c:if test="${not empty phone.price}">
-    ${phone.price}$
+<c:if test="${not empty price}">
+    ${price}$
 </c:if>

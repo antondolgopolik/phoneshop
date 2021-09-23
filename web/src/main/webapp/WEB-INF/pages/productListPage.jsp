@@ -4,16 +4,17 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 
-<%--@elvariable id="phones" type="java.util.List"--%>
 <%--@elvariable id="cart" type="com.es.core.model.cart.Cart"--%>
+<%--@elvariable id="authenticated" type="java.lang.Boolean"--%>
+<%--@elvariable id="products" type="java.util.List"--%>
 <%--@elvariable id="currentPage" type="java.lang.Integer"--%>
-<%--@elvariable id="phonesInStockNumber" type="java.lang.Integer"--%>
+<%--@elvariable id="productsNumber" type="java.lang.Integer"--%>
 
 <%
-    final int currentPage = (Integer) request.getAttribute("currentPage");
-    final int phonesInStockNumber = (Integer) request.getAttribute("phonesInStockNumber");
-    final int phonesPerPage = (Integer) request.getAttribute("phonesPerPage");
-    final int maxPage = (int) Math.ceil((double) phonesInStockNumber / phonesPerPage);
+    final int currentPage = (int) request.getAttribute("currentPage");
+    final int productsNumber = (int) request.getAttribute("productsNumber");
+    final int productsPerPage = (int) request.getAttribute("productsPerPage");
+    final int lastPageNumber = (int) Math.ceil((double) productsNumber / productsPerPage);
 %>
 
 <html lang="en">
@@ -28,7 +29,7 @@
     <script type="text/javascript" src="<c:url value="/resources/js/productListPage.js"/>"></script>
 </head>
 <body>
-<tags:navBar cart="${cart}"/>
+<tags:navBar cart="${cart}" authenticated="${authenticated}"/>
 
 <table class="table table-bordered">
     <thead>
@@ -36,53 +37,63 @@
         <td>Image</td>
         <td>
             Brand
-            <a href="?sortType=brand&sortDir=asc">↑</a>
-            <a href="?sortType=brand&sortDir=desc">↓</a>
+            <button class="btn btn-light" onclick="sortByBrandAsc()">
+                ↑
+            </button>
+            <button class="btn btn-light" onclick="sortByBrandDesc()">
+                ↓
+            </button>
         </td>
         <td>
             Model
-            <a href="?sortType=model&sortDir=asc">↑</a>
-            <a href="?sortType=model&sortDir=desc">↓</a>
+            <button class="btn btn-light" onclick="sortByModelAsc()">
+                ↑
+            </button>
+            <button class="btn btn-light" onclick="sortByModelDesc()">
+                ↓
+            </button>
         </td>
         <td>Color</td>
         <td>Display size</td>
         <td>
             Price
-            <a href="?sortType=price&sortDir=asc">↑</a>
-            <a href="?sortType=price&sortDir=desc">↓</a>
+            <button class="btn btn-light" onclick="sortByPriceAsc()">
+                ↑
+            </button>
+            <button class="btn btn-light" onclick="sortByPriceDesc()">
+                ↓
+            </button>
         </td>
         <td>Quantity</td>
         <td>Action</td>
     </tr>
     </thead>
-    <c:forEach var="phone" items="${phones}">
+    <c:forEach var="product" items="${products}">
         <tr>
             <td>
-                <a href="/phoneshop-web/productDetails/${phone.id}">
-                    <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}"
+                <a href="/phoneshop-web/productDetails/${product.id}">
+                    <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${product.imageUrl}"
                          alt="phone image">
                 </a>
             </td>
-            <td>${phone.brand}</td>
-            <td>${phone.model}</td>
+            <td>${product.brand}</td>
+            <td>${product.model}</td>
             <td>
-                <c:forEach var="color" items="${phone.colors}" varStatus="colorStatus">
-                    ${color}<c:if test="${not colorStatus.last}">, </c:if>
-                </c:forEach>
+                <tags:colors colors="${product.colors}"/>
             </td>
             <td>
-                    ${phone.displaySizeInches}``
+                    ${product.displaySize}``
             </td>
             <td>
-                <tags:price phone="${phone}"/>
+                <tags:price price="${product.price}"/>
             </td>
             <td>
                 <label>
-                    <input id="quantity-${phone.id}" type="text" class="form-control" placeholder="Quantity">
+                    <input id="quantity-${product.id}" type="text" class="form-control" placeholder="Quantity">
                 </label>
             </td>
             <td>
-                <button class="btn btn-primary" onclick="addToCartClickHandler(${phone.id})">
+                <button class="btn btn-primary" onclick="addToCartClickHandler(${product.id})">
                     Add to cart
                 </button>
             </td>
@@ -97,14 +108,14 @@
                 <a class="page-link" href="?page=<%out.print(currentPage - 1);%>">Previous</a>
             </li>
             <%
-                int limit = Math.min(currentPage + phonesPerPage - 1, maxPage);
+                int limit = Math.min(currentPage + productsPerPage - 1, lastPageNumber);
                 // Display page buttons
                 out.print(String.format("<li class=\"page-item active\"><a class=\"page-link\" href=\"?page=%d\">%d</a></li>", currentPage, currentPage));
                 for (int i = currentPage + 1; i <= limit; i++) {
                     out.print(String.format("<li class=\"page-item\"><a class=\"page-link\" href=\"?page=%d\">%d</a></li>", i, i));
                 }
             %>
-            <li class="page-item <%if (currentPage == maxPage) out.print("disabled");%>">
+            <li class="page-item <%if (currentPage == lastPageNumber) out.print("disabled");%>">
                 <a class="page-link" href="?page=<%out.print(currentPage + 1);%>">Next</a>
             </li>
         </ul>

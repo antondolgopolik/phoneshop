@@ -17,23 +17,13 @@ public class JdbcColorDao implements ColorDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Optional<Color> get(Long id) {
-        String sql = "SELECT * FROM colors WHERE id=?";
-        Color color = jdbcTemplate.query(sql, new SingleColorResultSetExtractor(), id);
-        return Optional.ofNullable(color);
-    }
-
-    @Override
-    public Set<Color> getByPhoneId(Long phoneId) {
-        Set<Color> colors = new HashSet<>();
-        for (Long colorId : getColorIdsByPhoneId(phoneId)) {
-            get(colorId).ifPresent(colors::add);
-        }
-        return colors;
-    }
-
-    private List<Long> getColorIdsByPhoneId(Long phoneId) {
-        String sql = "SELECT * FROM phone2color WHERE phoneId=?";
-        return jdbcTemplate.query(sql, (resultSet, i) -> resultSet.getLong(2), phoneId);
+    public Set<Color> get(Long phoneId) {
+        String sql = """
+                SELECT c.*
+                FROM colors c
+                         INNER JOIN phone2color p2c on c.id = p2c.color_id
+                where p2c.phone_id = ?
+                """;
+        return jdbcTemplate.query(sql, new ColorResultSetExtractor(), phoneId);
     }
 }

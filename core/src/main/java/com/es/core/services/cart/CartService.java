@@ -14,11 +14,13 @@ public interface CartService{
 
     Collection<CartItemDto> getCartItems();
 
-    void add(Long phoneId, Integer quantity);
+    void addToCart(Long phoneId, Integer quantity);
 
-    void update(Long phoneId, Integer quantity);
+    void updateCart(Long phoneId, Integer quantity);
 
-    void update(Map<Long, Integer> updates);
+    void updateCart(Map<Long, Integer> updates);
 
-    void delete(Long phoneId);
+    void deleteFromCart(Long phoneId);
+
+    void orderCart();
 }

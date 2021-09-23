@@ -17,7 +17,6 @@ import org.springframework.web.context.annotation.SessionScope;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,21 +75,20 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void add(Long phoneId, Integer delta) {
-        add(mainContext, phoneId, delta, true);
+    public void addToCart(Long phoneId, Integer delta) {
+        addToCart(mainContext, phoneId, delta, true);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void add(HttpSessionCartServiceContext context, Long phoneId, Integer delta, boolean update) {
-        Phone phone = readPhone(phoneId);
+    private void addToCart(HttpSessionCartServiceContext context, Long phoneId, Integer delta, boolean update) {
         CartItem cartItem = context.getCartItemsMap().get(phoneId);
         // Prepare updates
-        Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
+        Stock newUpdatedStock = newUpdatedStock(readStock(phoneId), delta, update);
         CartItem newUpdatedCartItem = newUpdatedCartItem(
                 cartItem != null ? cartItem : new CartItem(phoneId, 0),
                 delta, update
         );
-        Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+        Cart newUpdatedCart = newUpdatedCart(context.getCart(), readPhone(phoneId), delta, update);
         // Update
         if (update) {
             stockDao.update(newUpdatedStock);
@@ -100,21 +98,20 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void update(Long phoneId, Integer quantity) {
-        update(mainContext, phoneId, quantity, true);
+    public void updateCart(Long phoneId, Integer quantity) {
+        updateCart(mainContext, phoneId, quantity, true);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void update(HttpSessionCartServiceContext context, Long phoneId, Integer quantity, boolean update) {
+    private void updateCart(HttpSessionCartServiceContext context, Long phoneId, Integer quantity, boolean update) {
         CartItem cartItem = context.getCartItemsMap().get(phoneId);
         // Check if cart item with given phone id exists
         if (cartItem != null) {
-            Phone phone = readPhone(phoneId);
             int delta = quantity - cartItem.getQuantity();
             // Prepare updates
-            Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
+            Stock newUpdatedStock = newUpdatedStock(readStock(phoneId), delta, update);
             CartItem newUpdatedCartItem = newUpdatedCartItem(cartItem, delta, update);
-            Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+            Cart newUpdatedCart = newUpdatedCart(context.getCart(), readPhone(phoneId), delta, update);
             // Update
             if (update) {
                 stockDao.update(newUpdatedStock);
@@ -127,7 +124,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void update(Map<Long, Integer> updates) {
+    public void updateCart(Map<Long, Integer> updates) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
@@ -139,7 +136,7 @@ public class HttpSessionCartService implements CartService {
                     Long phoneId = entry.getKey();
                     Integer quantity = entry.getValue();
                     try {
-                        update(context, phoneId, quantity, errors.isEmpty());
+                        updateCart(context, phoneId, quantity, errors.isEmpty());
                     } catch (RuntimeException e) {
                         errors.put(phoneId, e.getMessage());
                     }
@@ -155,20 +152,19 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void delete(Long phoneId) {
-        delete(mainContext, phoneId, true);
+    public void deleteFromCart(Long phoneId) {
+        deleteFromCart(mainContext, phoneId, true);
     }
 
     @SuppressWarnings("ConstantConditions")
-    private void delete(HttpSessionCartServiceContext context, Long phoneId, boolean update) {
+    private void deleteFromCart(HttpSessionCartServiceContext context, Long phoneId, boolean update) {
         CartItem cartItem = context.getCartItemsMap().get(phoneId);
         // Check if cart item with given phone id exists
         if (cartItem != null) {
-            Phone phone = readPhone(phoneId);
             int delta = -cartItem.getQuantity();
             // Prepare updates
-            Stock newUpdatedStock = newUpdatedStock(readStock(phone), delta, update);
-            Cart newUpdatedCart = newUpdatedCart(context.getCart(), phone, delta, update);
+            Stock newUpdatedStock = newUpdatedStock(readStock(phoneId), delta, update);
+            Cart newUpdatedCart = newUpdatedCart(context.getCart(), readPhone(phoneId), delta, update);
             // Update
             if (update) {
                 stockDao.update(newUpdatedStock);
@@ -180,6 +176,29 @@ public class HttpSessionCartService implements CartService {
         }
     }
 
+    /*
+    Must be invoked only within transaction
+     */
+    @Override
+    public void orderCart() {
+        List<Stock> stocks = new LinkedList<>();
+        Set<Map.Entry<Long, CartItem>> entries = mainContext.getCartItemsMap().entrySet();
+        for (Map.Entry<Long, CartItem> entry : entries) {
+            Long phoneId = entry.getKey();
+            CartItem cartItem = entry.getValue();
+            // Update stock
+            Stock stock = readStock(phoneId);
+            stock.setStock(stock.getStock() - cartItem.getQuantity());
+            stock.setReserved(stock.getReserved() - cartItem.getQuantity());
+            // Add to update list
+            stocks.add(stock);
+        }
+        // Update stocks
+        stockDao.update(stocks);
+        // Reset context
+        mainContext.resetContext();
+    }
+
     private Phone readPhone(Long phoneId) {
         Optional<Phone> phoneOptional = phoneDao.get(phoneId);
         if (phoneOptional.isEmpty()) {
@@ -188,8 +207,8 @@ public class HttpSessionCartService implements CartService {
         return phoneOptional.get();
     }
 
-    private Stock readStock(Phone phone) {
-        Optional<Stock> stockOptional = stockDao.getByPhone(phone);
+    private Stock readStock(Long phoneId) {
+        Optional<Stock> stockOptional = stockDao.get(phoneId);
         if (stockOptional.isEmpty()) {
             throw new IllegalArgumentException("Information on the stock of phones isn't available!");
         }
@@ -234,7 +253,7 @@ public class HttpSessionCartService implements CartService {
         if (newTotalQuantity < 0) {
             throw new IllegalArgumentException("Invalid cart total quantity change!");
         }
-        BigDecimal newTotalCost = cart.getTotalCost().add(phone.getPrice().multiply(BigDecimal.valueOf(delta)));
+        BigDecimal newTotalCost = cart.getSubtotal().add(phone.getPrice().multiply(BigDecimal.valueOf(delta)));
         if (newTotalCost.signum() == -1) {
             throw new IllegalArgumentException("Invalid cart total cost change!");
         }
@@ -242,7 +261,7 @@ public class HttpSessionCartService implements CartService {
         if (returnUpdate) {
             Cart newCart = cart.clone();
             newCart.setTotalQuantity(newTotalQuantity);
-            newCart.setTotalCost(newTotalCost);
+            newCart.setSubtotal(newTotalCost);
             return newCart;
         } else {
             return null;

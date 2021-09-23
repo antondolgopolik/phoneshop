@@ -1,4 +1,6 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ attribute name="cart" type="com.es.core.model.cart.Cart" required="true" %>
+<%@ attribute name="authenticated" type="java.lang.Boolean" required="true" %>
 
 <%--@elvariable id="cart" type="com.es.core.model.cart.Cart"--%>
 
@@ -22,13 +24,20 @@
                 <li class="nav-item">
                     <a id="cart-button" class="nav-link" aria-current="page"
                        href="${pageContext.request.contextPath}/cart">
-                        My cart: ${cart.totalQuantity} items ${cart.totalCost}$
+                        My cart: ${cart.totalQuantity} items ${cart.subtotal}$
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a id="login-button" class="nav-link" aria-current="page" href="#">
-                        Login
-                    </a>
+                    <c:if test="${authenticated.booleanValue()}">
+                        <a class="nav-link" aria-current="page" href="<c:url value="/logout"/>">
+                            Log out
+                        </a>
+                    </c:if>
+                    <c:if test="${not authenticated}">
+                        <a class="nav-link" aria-current="page" href="<c:url value="/login"/>">
+                            Login
+                        </a>
+                    </c:if>
                 </li>
             </ul>
         </div>

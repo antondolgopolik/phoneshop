@@ -3,6 +3,7 @@ package com.es.core.services.cart;
 import com.es.core.model.cart.Cart;
 import com.es.core.model.cart.CartItem;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,12 @@ public class HttpSessionCartServiceContext {
         return Collections.unmodifiableMap(cartItemsMap);
     }
 
+    public void resetContext() {
+        cart.setTotalQuantity(0);
+        cart.setSubtotal(new BigDecimal(0));
+        cartItemsMap.clear();
+    }
+
     public void updateContext(HttpSessionCartServiceContext context) {
         updateCart(context.cart);
         updateCartItemsMap(context.cartItemsMap);
@@ -36,7 +43,7 @@ public class HttpSessionCartServiceContext {
 
     public void updateCart(Cart newCart) {
         cart.setTotalQuantity(newCart.getTotalQuantity());
-        cart.setTotalCost(newCart.getTotalCost());
+        cart.setSubtotal(newCart.getSubtotal());
     }
 
     public void putCartItem(CartItem cartItem) {

@@ -9,9 +9,9 @@ public interface PhoneDao {
 
     Optional<Phone> get(Long id);
 
-    void save(Phone phone);
+    List<Phone> search(SearchQueryBuilder searchQueryBuilder);
 
-    List<Phone> findInStock(String request, PhoneSortType phoneSortType, SortDirection sortDirection, int offset, int limit);
+    void save(Phone phone);
 
     Integer getPhonesInStockNumber();
 }

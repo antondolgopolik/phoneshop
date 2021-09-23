@@ -1,17 +1,13 @@
 function deleteFromCartClickHandler(id) {
-    const url = "http://localhost:8080/phoneshop-web/ajaxCart/cartItems/" + id;
-    $.ajax(url, {
-        type: "DELETE",
-        dataType: "json",
-        success: function (data) {
+    deleteFromCart(id,
+        function (data) {
             $("#cart-button").html("My cart: " + data.totalQuantity + " items " + data.totalCost + "$");
             $("#tr-" + id).remove();
             alert("success");
         },
-        error: function (jqHXR, status) {
+        function (jqHXR, status) {
             alert(jqHXR.responseText);
-        }
-    });
+        });
 }
 
 function updateCartClickHandler() {
@@ -27,28 +23,21 @@ function updateCartClickHandler() {
         $("#quantity-feedback-" + phoneId).hide();
     }
     // Send request
-    const url = "http://localhost:8080/phoneshop-web/ajaxCart/cartItems";
-    $.ajax(url, {
-        type: "PUT",
-        contentType: "application/json",
-        data: JSON.stringify(updates),
-        success: function (data) {
-            updateMiniCart(data.totalQuantity, data.totalCost);
-            alert("success");
-        },
-        error: function (jqHXR, status) {
-            const errorsObj = JSON.parse(jqHXR.responseText);
-            const errors = new Map(Object.entries(errorsObj));
-            for (let [phoneId, msg] of errors) {
-                $("#quantity-" + phoneId).addClass("is-invalid");
-                const feedbackDiv = $("#quantity-feedback-" + phoneId);
-                feedbackDiv.html(msg);
-                feedbackDiv.show();
-            }
-        }
-    });
+    updateCart(updates, updateCartSuccess, updateCartError);
 }
 
-function orderCartClickHandler() {
+function updateCartSuccess(data) {
+    updateMiniCart(data.totalQuantity, data.totalCost);
+    alert("success");
+}
 
+function updateCartError(jqHXR, status) {
+    const errorsObj = JSON.parse(jqHXR.responseText);
+    const errors = new Map(Object.entries(errorsObj));
+    for (let [phoneId, msg] of errors) {
+        $("#quantity-" + phoneId).addClass("is-invalid");
+        const feedbackDiv = $("#quantity-feedback-" + phoneId);
+        feedbackDiv.html(msg);
+        feedbackDiv.show();
+    }
 }

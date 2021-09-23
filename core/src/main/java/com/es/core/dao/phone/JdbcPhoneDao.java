@@ -19,13 +19,18 @@ public class JdbcPhoneDao implements PhoneDao {
         String sql = """
                 SELECT p.*, ARRAY_AGG(c.id), ARRAY_AGG(c.code)
                 FROM phones p
-                         INNER JOIN phone2color p2c on p.id = p2c.phoneId
-                         INNER JOIN colors c on c.id = p2c.colorId
+                         INNER JOIN phone2color p2c on p.id = p2c.phone_id
+                         INNER JOIN colors c on c.id = p2c.color_id
                 WHERE p.id = ?
                 GROUP BY p.id;
                 """;
         Phone phone = jdbcTemplate.query(sql, new SinglePhoneResultSetExtractor(), id);
         return Optional.ofNullable(phone);
+    }
+
+    @Override
+    public List<Phone> search(SearchQueryBuilder searchQueryBuilder) {
+        return jdbcTemplate.query(searchQueryBuilder.build(), new PhoneInStockRowMapper());
     }
 
     @Override
@@ -36,13 +41,13 @@ public class JdbcPhoneDao implements PhoneDao {
                 """;
         Object[] args = new Object[]{
                 phone.getId(), phone.getBrand(), phone.getModel(),
-                phone.getPrice(), phone.getDisplaySizeInches(), phone.getWeightGr(),
-                phone.getLengthMm(), phone.getWidthMm(), phone.getHeightMm(),
+                phone.getPrice(), phone.getDisplaySize(), phone.getWeight(),
+                phone.getLength(), phone.getWidth(), phone.getHeight(),
                 phone.getAnnounced(), phone.getDeviceType(), phone.getOs(),
                 phone.getDisplayResolution(), phone.getPixelDensity(), phone.getDisplayTechnology(),
-                phone.getBackCameraMegapixels(), phone.getFrontCameraMegapixels(), phone.getRamGb(),
-                phone.getInternalStorageGb(), phone.getBatteryCapacityMah(), phone.getTalkTimeHours(),
-                phone.getStandByTimeHours(), phone.getBluetooth(), phone.getPositioning(),
+                phone.getBackCameraMegapixels(), phone.getFrontCameraMegapixels(), phone.getRam(),
+                phone.getInternalStorage(), phone.getBatteryCapacity(), phone.getTalkTime(),
+                phone.getStandByTime(), phone.getBluetooth(), phone.getPositioning(),
                 phone.getImageUrl(), phone.getDescription()
         };
         int[] argTypes = new int[]{
@@ -56,25 +61,8 @@ public class JdbcPhoneDao implements PhoneDao {
     }
 
     @Override
-    public List<Phone> findInStock(String request,
-                                   PhoneSortType phoneSortType,
-                                   SortDirection sortDirection,
-                                   int offset,
-                                   int limit) {
-        // Build query
-        PhoneQueryBuilder phoneQueryBuilder = new PhoneQueryBuilder();
-        phoneQueryBuilder.setRequest(request);
-        phoneQueryBuilder.setPhoneSortType(phoneSortType);
-        phoneQueryBuilder.setSortDirection(sortDirection);
-        phoneQueryBuilder.setOffset(offset);
-        phoneQueryBuilder.setLimit(limit);
-        // Make query
-        return jdbcTemplate.query(phoneQueryBuilder.build(), new PhoneInStockRowMapper());
-    }
-
-    @Override
     public Integer getPhonesInStockNumber() {
-        String sql = "SELECT COUNT(*) FROM stocks";
+        String sql = "SELECT COUNT(*) FROM stocks WHERE stock > reserved";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 }

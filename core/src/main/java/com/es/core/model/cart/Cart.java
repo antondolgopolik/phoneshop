@@ -3,15 +3,15 @@ package com.es.core.model.cart;
 import java.math.BigDecimal;
 
 public class Cart implements Cloneable {
-    private BigDecimal totalCost = new BigDecimal(0);
+    private BigDecimal subtotal = new BigDecimal(0);
     private int totalQuantity;
 
-    public BigDecimal getTotalCost() {
-        return totalCost;
+    public BigDecimal getSubtotal() {
+        return subtotal;
     }
 
-    public void setTotalCost(BigDecimal totalCost) {
-        this.totalCost = totalCost;
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
     }
 
     public int getTotalQuantity() {
