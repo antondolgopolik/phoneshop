@@ -1,5 +1,6 @@
 package com.es.core.services.cart;
 
+import com.es.core.dto.cart.CartAdditionDto;
 import com.es.core.dto.cart.CartItemDto;
 import com.es.core.model.cart.Cart;
 
@@ -13,6 +14,8 @@ public interface CartService{
     CartItemDto getCartItem(Long phoneId);
 
     Collection<CartItemDto> getCartItems();
+
+    void addAllToCart(Map<Integer, CartAdditionDto> additions);
 
     void addToCart(Long phoneId, Integer quantity);
 

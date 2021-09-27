@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface PhoneDao {
 
+    List<Phone> get();
+
     Optional<Phone> get(Long id);
 
     List<Phone> search(SearchQueryBuilder searchQueryBuilder);

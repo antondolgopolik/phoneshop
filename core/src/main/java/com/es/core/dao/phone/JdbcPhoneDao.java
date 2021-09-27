@@ -15,6 +15,18 @@ public class JdbcPhoneDao implements PhoneDao {
     private JdbcTemplate jdbcTemplate;
 
     @Override
+    public List<Phone> get() {
+        String sql = """
+                SELECT p.*, ARRAY_AGG(c.id), ARRAY_AGG(c.code)
+                FROM phones p
+                         INNER JOIN phone2color p2c on p.id = p2c.phone_id
+                         INNER JOIN colors c on c.id = p2c.color_id
+                GROUP BY p.id;
+                """;
+        return jdbcTemplate.query(sql, new PhoneInStockRowMapper());
+    }
+
+    @Override
     public Optional<Phone> get(Long id) {
         String sql = """
                 SELECT p.*, ARRAY_AGG(c.id), ARRAY_AGG(c.code)

@@ -2,6 +2,7 @@ package com.es.core.services.cart;
 
 import com.es.core.dao.phone.PhoneDao;
 import com.es.core.dao.stock.StockDao;
+import com.es.core.dto.cart.CartAdditionDto;
 import com.es.core.dto.cart.CartItemDto;
 import com.es.core.exceptions.MultiErrorException;
 import com.es.core.model.cart.Cart;
@@ -18,6 +19,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,6 +75,17 @@ public class HttpSessionCartService implements CartService {
             cartItemDto.setQuantity(cartItem.getQuantity());
             return cartItemDto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addAllToCart(Map<Integer, CartAdditionDto> additions) {
+        List<Phone> phones = phoneDao.get();
+        additions.forEach((index, addition) -> {
+            Optional<Phone> phoneOptional = phones.parallelStream()
+                    .filter(phone -> phone.getModel().equalsIgnoreCase(addition.getModel()))
+                    .findAny();
+            addToCart(phoneOptional.get().getId(), addition.getQuantity());
+        });
     }
 
     @Override

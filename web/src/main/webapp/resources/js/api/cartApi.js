@@ -1,3 +1,17 @@
+function addAllToCart(additions, onSuccess, onError) {
+    const url = "http://localhost:8080/phoneshop-web/api/cart/cartItems/addAll";
+    const dataObj = {
+        "additions": additions
+    }
+    $.ajax(url, {
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(dataObj),
+        success: onSuccess,
+        error: onError
+    });
+}
+
 function addToCart(id, quantity, onSuccess, onError) {
     const url = "http://localhost:8080/phoneshop-web/api/cart/cartItems/" + id;
     const dataObj = {
