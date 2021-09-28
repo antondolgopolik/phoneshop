@@ -1,6 +1,5 @@
 package com.es.phoneshop.web.controller.api;
 
-import com.es.core.dto.cart.CartAdditionsDto;
 import com.es.core.dto.cart.CartUpdatesDto;
 import com.es.core.dto.cart.QuantityDto;
 import com.es.core.exceptions.ValidationException;
@@ -31,18 +30,11 @@ public class AjaxCartController {
     @Resource
     private Validator quantityDtoValidator;
     @Resource
-    private Validator cartAdditionsDtoValidator;
-    @Resource
     private Validator cartUpdatesDtoValidator;
 
     @InitBinder("quantityDto")
     private void initBinderQuantityDto(WebDataBinder webDataBinder) {
         webDataBinder.setValidator(quantityDtoValidator);
-    }
-
-    @InitBinder("cartAdditionsDto")
-    private void initBinderCartAdditionsDto(WebDataBinder webDataBinder) {
-        webDataBinder.setValidator(cartAdditionsDtoValidator);
     }
 
     @InitBinder("cartUpdatesDto")
@@ -61,20 +53,6 @@ public class AjaxCartController {
         }
         // Add to cart
         cartService.addToCart(phoneId, quantityDto.getQuantity());
-        // Response
-        return responseWithCartInfo();
-    }
-
-    @RequestMapping(value = "/cartItems/addAll", method = RequestMethod.POST)
-    @ResponseBody
-    public Map<String, Object> addAllToCart(@Validated @RequestBody CartAdditionsDto cartAdditionsDto,
-                                            BindingResult bindingResult) {
-        // Add all to cart
-        cartService.addAllToCart(cartAdditionsDto.getAdditions());
-        // Report errors
-        if (bindingResult.hasErrors()) {
-            throw new ValidationException(messageSource, bindingResult);
-        }
         // Response
         return responseWithCartInfo();
     }

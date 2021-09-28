@@ -19,8 +19,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,17 +76,6 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public void addAllToCart(Map<Integer, CartAdditionDto> additions) {
-        List<Phone> phones = phoneDao.get();
-        additions.forEach((index, addition) -> {
-            Optional<Phone> phoneOptional = phones.parallelStream()
-                    .filter(phone -> phone.getModel().equalsIgnoreCase(addition.getModel()))
-                    .findAny();
-            addToCart(phoneOptional.get().getId(), addition.getQuantity());
-        });
-    }
-
-    @Override
     public void addToCart(Long phoneId, Integer delta) {
         addToCart(mainContext, phoneId, delta, true);
     }
@@ -108,6 +95,45 @@ public class HttpSessionCartService implements CartService {
             stockDao.update(newUpdatedStock);
             context.putCartItem(newUpdatedCartItem);
             context.updateCart(newUpdatedCart);
+        }
+    }
+
+    @Override
+    public void addAllToCart(List<CartAdditionDto> cartAdditions) {
+        // Find all necessary phones by models
+        List<Phone> allPhones = phoneDao.get();
+        List<Phone> phones = cartAdditions.parallelStream()
+                .map(cartAddition -> {
+                    Optional<Phone> phoneOptional = allPhones.stream()
+                            .filter(phone -> cartAddition.getModel().equalsIgnoreCase(phone.getModel()))
+                            .findAny();
+                    return phoneOptional.orElse(null);
+                })
+                .collect(Collectors.toList());
+        // Apply changes
+        Iterator<CartAdditionDto> cartAdditionsIterator = cartAdditions.iterator();
+        Iterator<Phone> phonesIterator = phones.iterator();
+        int i = -1;
+        // Errors storage
+        Map<Integer, String> errors = new HashMap<>();
+        // Iterate through additions
+        while (cartAdditionsIterator.hasNext()) {
+            CartAdditionDto cartAddition = cartAdditionsIterator.next();
+            Phone phone = phonesIterator.next();
+            i++;
+            if (phone == null) {
+                errors.put(i, "Phone of this model doesn't exist");
+                continue;
+            }
+            try {
+                addToCart(phone.getId(), cartAddition.getQuantity());
+            } catch (RuntimeException e) {
+                errors.put(i, e.getMessage());
+            }
+        }
+        // Check errors
+        if (!errors.isEmpty()) {
+            throw new MultiErrorException(errors);
         }
     }
 

@@ -1,7 +1,6 @@
 package com.es.phoneshop.web.controller.exceptions;
 
 import com.es.core.exceptions.MultiErrorException;
-import com.es.core.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,7 +1,10 @@
 package com.es.core.dto.cart;
 
+import javax.validation.constraints.Positive;
+
 public class CartAdditionDto {
     private String model;
+    @Positive(message = "Quantity should be positive integer")
     private Integer quantity;
 
     public String getModel() {

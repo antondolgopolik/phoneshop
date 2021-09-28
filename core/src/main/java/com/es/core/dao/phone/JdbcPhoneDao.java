@@ -1,5 +1,6 @@
 package com.es.core.dao.phone;
 
+import com.es.core.dto.cart.CartAdditionDto;
 import com.es.core.model.phone.Phone;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -7,7 +8,10 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.sql.Types;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 public class JdbcPhoneDao implements PhoneDao {
@@ -70,6 +74,14 @@ public class JdbcPhoneDao implements PhoneDao {
                 Types.FLOAT, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR
         };
         jdbcTemplate.update(sql, args, argTypes);
+    }
+
+    public void update(List<CartAdditionDto> cartAddition) {
+        String sql = "UPDATE ";
+        List<Object[]> batchArgs = cartAddition.parallelStream()
+                .map(cartAdditionDto -> new Object[]{cartAdditionDto.getModel(), cartAdditionDto.getQuantity()})
+                .collect(Collectors.toList());
+        jdbcTemplate.batchUpdate(sql, batchArgs);
     }
 
     @Override

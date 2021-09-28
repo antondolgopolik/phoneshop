@@ -5,6 +5,7 @@ import com.es.core.dto.cart.CartItemDto;
 import com.es.core.model.cart.Cart;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface CartService{
@@ -15,9 +16,9 @@ public interface CartService{
 
     Collection<CartItemDto> getCartItems();
 
-    void addAllToCart(Map<Integer, CartAdditionDto> additions);
-
     void addToCart(Long phoneId, Integer quantity);
+
+    void addAllToCart(List<CartAdditionDto> cartAdditions);
 
     void updateCart(Long phoneId, Integer quantity);
 
