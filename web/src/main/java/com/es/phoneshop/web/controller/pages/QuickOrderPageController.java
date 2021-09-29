@@ -61,10 +61,10 @@ public class QuickOrderPageController {
         try {
             cartService.addAllToCart(filtered);
         } catch (MultiErrorException e) {
-            handleCartAdditionMultiErrorException(e, filtered, bindingResult);
+            handleMultiErrorException(e, filtered, bindingResult);
         }
-        // Reset filtered input
-        resetValidInput(filtered);
+        // Reset applied input
+        resetAppliedInput(filtered);
         // Set attributes
         model.addAttribute(CART_ATTR, cartService.getCart());
         model.addAttribute(AUTHENTICATED_ATR, userService.isAuthenticated());
@@ -72,9 +72,9 @@ public class QuickOrderPageController {
         return new RedirectView("/quickOrder", true);
     }
 
-    private void handleCartAdditionMultiErrorException(MultiErrorException e,
-                                                       List<CartAdditionDto> filtered,
-                                                       BindingResult bindingResult) {
+    private void handleMultiErrorException(MultiErrorException e,
+                                           List<CartAdditionDto> filtered,
+                                           BindingResult bindingResult) {
         //noinspection unchecked
         Map<Integer, String> errors = (Map<Integer, String>) e.getData();
         ListIterator<CartAdditionDto> listIterator = filtered.listIterator();
@@ -110,7 +110,7 @@ public class QuickOrderPageController {
         return filtered;
     }
 
-    private void resetValidInput(List<CartAdditionDto> filtered) {
+    private void resetAppliedInput(List<CartAdditionDto> filtered) {
         for (CartAdditionDto cartAdditionDto : filtered) {
             cartAdditionDto.setModel(null);
             cartAdditionDto.setQuantity(null);

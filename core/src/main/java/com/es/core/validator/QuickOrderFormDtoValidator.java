@@ -21,26 +21,25 @@ public class QuickOrderFormDtoValidator implements Validator {
         QuickOrderFormDto quickOrderFormDto = (QuickOrderFormDto) target;
         ArrayList<CartAdditionDto> cartAdditions = quickOrderFormDto.getCartAdditions();
         // Check if cart additions are present
-        if (cartAdditions == null) {
-            return;
-        }
-        // Validate cart additions
-        for (int i = 0; i < cartAdditions.size(); i++) {
-            CartAdditionDto cartAddition = cartAdditions.get(i);
-            String model = cartAddition.getModel();
-            Integer quantity = cartAddition.getQuantity();
-            if ((model != null) && !model.isBlank() && (quantity == null)) {
-                errors.rejectValue(
-                        "cartAdditions[" + i + "].quantity",
-                        "validation.field.empty",
-                        "Field 'Quantity' is required"
-                );
-            } else if (((model == null) || model.isBlank()) && (quantity != null)) {
-                errors.rejectValue(
-                        "cartAdditions[" + i + "].model",
-                        "validation.field.empty",
-                        "Field 'Model' is required"
-                );
+        if (cartAdditions != null) {
+            // Validate cart additions
+            for (int i = 0; i < cartAdditions.size(); i++) {
+                CartAdditionDto cartAddition = cartAdditions.get(i);
+                String model = cartAddition.getModel();
+                Integer quantity = cartAddition.getQuantity();
+                if ((model != null) && !model.isBlank() && (quantity == null)) {
+                    errors.rejectValue(
+                            "cartAdditions[" + i + "].quantity",
+                            "validation.field.empty",
+                            "Field 'Quantity' is required"
+                    );
+                } else if (((model == null) || model.isBlank()) && (quantity != null)) {
+                    errors.rejectValue(
+                            "cartAdditions[" + i + "].model",
+                            "validation.field.empty",
+                            "Field 'Model' is required"
+                    );
+                }
             }
         }
     }

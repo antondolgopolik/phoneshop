@@ -100,40 +100,47 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public void addAllToCart(List<CartAdditionDto> cartAdditions) {
-        // Find all necessary phones by models
+        // Find all necessary phones by cart additions
+        List<Phone> phones = findPhonesByCartAdditions(cartAdditions);
+        // Error storage
+        Map<Integer, String> errors = new HashMap<>();
+        // Apply cart additions
+        applyCartAdditions(cartAdditions, phones, errors);
+        // Check errors
+        if (!errors.isEmpty()) {
+            throw new MultiErrorException(errors);
+        }
+    }
+
+    private List<Phone> findPhonesByCartAdditions(List<CartAdditionDto> cartAdditions) {
         List<Phone> allPhones = phoneDao.get();
-        List<Phone> phones = cartAdditions.parallelStream()
-                .map(cartAddition -> {
-                    Optional<Phone> phoneOptional = allPhones.stream()
-                            .filter(phone -> cartAddition.getModel().equalsIgnoreCase(phone.getModel()))
-                            .findAny();
-                    return phoneOptional.orElse(null);
-                })
+        return cartAdditions.parallelStream()
+                .map(cartAddition -> allPhones.stream()
+                        .filter(phone -> cartAddition.getModel().equalsIgnoreCase(phone.getModel()))
+                        .findAny().orElse(null))
                 .collect(Collectors.toList());
-        // Apply changes
+    }
+
+    private void applyCartAdditions(List<CartAdditionDto> cartAdditions,
+                                    List<Phone> phones,
+                                    Map<Integer, String> errors) {
         Iterator<CartAdditionDto> cartAdditionsIterator = cartAdditions.iterator();
         Iterator<Phone> phonesIterator = phones.iterator();
         int i = -1;
-        // Errors storage
-        Map<Integer, String> errors = new HashMap<>();
         // Iterate through additions
         while (cartAdditionsIterator.hasNext()) {
             CartAdditionDto cartAddition = cartAdditionsIterator.next();
             Phone phone = phonesIterator.next();
             i++;
-            if (phone == null) {
+            if (phone != null) {
+                try {
+                    addToCart(phone.getId(), cartAddition.getQuantity());
+                } catch (RuntimeException e) {
+                    errors.put(i, e.getMessage());
+                }
+            } else {
                 errors.put(i, "Phone of this model doesn't exist");
-                continue;
             }
-            try {
-                addToCart(phone.getId(), cartAddition.getQuantity());
-            } catch (RuntimeException e) {
-                errors.put(i, e.getMessage());
-            }
-        }
-        // Check errors
-        if (!errors.isEmpty()) {
-            throw new MultiErrorException(errors);
         }
     }
 
