@@ -29,7 +29,7 @@
         </tr>
         </thead>
         <% for (int i = 0; i < 10; i++) { %>
-        <tags:quickOrderTableRow i="<%=i%>"/>
+        <tags:quickOrderTableRow quickOrderForm="${quickOrderForm}" i="<%=i%>"/>
         <% }%>
     </table>
 

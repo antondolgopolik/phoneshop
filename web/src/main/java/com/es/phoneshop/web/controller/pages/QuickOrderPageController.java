@@ -8,8 +8,6 @@ import com.es.core.services.user.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,15 +31,10 @@ public class QuickOrderPageController {
     @Resource
     private UserService userService;
 
-    @Resource
-    private Validator quickOrderFormDtoValidator;
-
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView showQuickOrderPage(Model model,
                                            @Valid @ModelAttribute("quickOrderForm") QuickOrderFormDto quickOrderFormDto,
                                            BindingResult bindingResult) {
-        // Apply additional validation
-        ValidationUtils.invokeValidator(quickOrderFormDtoValidator, quickOrderFormDto, bindingResult);
         // Set attributes
         model.addAttribute(CART_ATTR, cartService.getCart());
         model.addAttribute(AUTHENTICATED_ATR, userService.isAuthenticated());
@@ -53,8 +46,6 @@ public class QuickOrderPageController {
                                      RedirectAttributes redirectAttributes,
                                      @Validated @ModelAttribute("quickOrderForm") QuickOrderFormDto quickOrderFormDto,
                                      BindingResult bindingResult) {
-        // Apply additional validation
-        ValidationUtils.invokeValidator(quickOrderFormDtoValidator, quickOrderFormDto, bindingResult);
         // Filter input
         List<CartAdditionDto> filtered = filterInput(quickOrderFormDto, bindingResult);
         // Add filtered input to cart
@@ -101,9 +92,7 @@ public class QuickOrderPageController {
         ArrayList<CartAdditionDto> cartAdditions = quickOrderFormDto.getCartAdditions();
         List<CartAdditionDto> filtered = new LinkedList<>();
         for (int i = 0; i < cartAdditions.size(); i++) {
-            String model = cartAdditions.get(i).getModel();
-            if ((model != null) && !model.isBlank() &&
-                    !bindingResult.hasFieldErrors("cartAdditions[" + i + "].*")) {
+            if (!bindingResult.hasFieldErrors("cartAdditions[" + i + "].*")) {
                 filtered.add(cartAdditions.get(i));
             }
         }
